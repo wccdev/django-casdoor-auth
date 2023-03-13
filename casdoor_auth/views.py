@@ -43,10 +43,17 @@ def callback(request):
     user = sdk.parse_jwt_token(token)
     request.session['user'] = user
     try:
-        in_user = User.objects.get(username=user.get('name'))
-    except:
-        in_user = User.objects.create_user(user.get('name'), user.get('email'), user.get('password'))
-        in_user.save()
-    in_user = authenticate(username=user.get('name'), password=user.get('password'))
+        in_user = User.objects.get(email=user.get('email'))
+    except User.MultipleObjectsReturned:
+        raise ValueError(f"Multiple emails found: {user.get('email')}")
+    except User.DoesNotExist:
+        try:
+            in_user = User.objects.get(username=user.get('name'))
+        except User.MultipleObjectsReturned:
+            raise ValueError(f"Multiple username found: {user.get('name')}")
+        except User.DoesNotExist:
+            in_user = User.objects.create_user(user.get('name'), email=user.get('email'), password=user.get('password'))
+
+    #in_user = authenticate(username=user.get('name'), password=user.get('password'))
     login(request, in_user)
     return redirect(settings.LOGIN_REDIRECT_URL)
