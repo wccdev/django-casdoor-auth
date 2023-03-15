@@ -42,18 +42,23 @@ def callback(request):
     token = sdk.get_oauth_token(code)
     user = sdk.parse_jwt_token(token)
     request.session['user'] = user
-    try:
-        in_user = User.objects.get(email=user.get('email'))
-    except User.MultipleObjectsReturned:
-        raise ValueError(f"Multiple emails found: {user.get('email')}")
-    except User.DoesNotExist:
+    email = user.get('email')
+    username = user.get('name')
+    in_user = None
+    if email:
         try:
-            in_user = User.objects.get(username=user.get('name'))
+            in_user = User.objects.get(email=user.get('email'))
         except User.MultipleObjectsReturned:
-            raise ValueError(f"Multiple username found: {user.get('name')}")
-        except User.DoesNotExist:
-            in_user = User.objects.create_user(user.get('name'), email=user.get('email'), password=user.get('password'))
+            raise ValueError(f"Multiple emails found: {email}")
 
-    #in_user = authenticate(username=user.get('name'), password=user.get('password'))
+    if not in_user and username:
+        try:
+            in_user = User.objects.get(username=username)
+        except User.MultipleObjectsReturned:
+            raise ValueError(f"Multiple username found: {username}")
+
+    if not in_user:
+        in_user = User.objects.create_user(username, email=email)
+
     login(request, in_user)
     return redirect(settings.LOGIN_REDIRECT_URL)
