@@ -1,0 +1,56 @@
+我现在用的前端框架是vue3.2和typescript
+有一个项目是需要使用vue-konva来画波形图，波形图里面有有几个类,
+EdgeTmp是波形图的沿，有上升沿和下降沿，沿属于SigTmp信号上的；absTime是绝对时间，每个沿有一个唯一的key，parentKey是父级沿的key(是字符串)，通常是另一个SigTmp信号的沿
+SigTmp是信号，name是信号名词， edges是信号的沿
+WaveCodeTmp定义了波形图属性，sigList是信号列表，duration是波形图持续时间
+这几个类具体定义如下
+
+export class EdgeTmp {
+  absTime: number
+  key: string
+  parentKey: string
+  val: string
+
+  constructor(key: string, parentKey: string, absTime: number, val: string) {
+    this.key = key
+    this.parentKey = parentKey
+    this.absTime = absTime
+    this.val = val
+  }
+}
+
+export class SigTmp {
+  name: string
+  bitwidth: number
+  initialValue: string
+  edges: EdgeTmp[] = []
+  isRefSig: boolean
+
+  constructor(name: string, bitwidth: number, initialValue: string, isRefSig: boolean, edges: EdgeTmp[]) {
+    this.name = name
+    this.bitwidth = bitwidth
+    this.initialValue = initialValue
+    this.isRefSig = isRefSig
+    this.edges = edges
+  }
+}
+
+export class WaveCodeTmp {
+  sigList: SigTmp[]
+  duration = 200
+
+  constructor() {
+    const a0 = new EdgeTmp('a.0', '(root)', 50, '1')
+    const a1 = new EdgeTmp('a.1', 'a.0', 100, '0')
+
+    const b0 = new EdgeTmp('b[4:0].0', '(root)', 70, '31:0:1')
+    const a = new SigTmp('a', 1, '0', false, [a0, a1])
+    const b = new SigTmp('b[4:0]', 5, '3', false, [b0])
+
+    this.sigList = [a, b]
+  }
+}
+
+我现在要使用vue-konva去绘制这些波形图，每个信号是一行
+我需要定义一个WaveView的视图类去画波形，WaveView接收一个参数是WaveCodeTmp的实例
+通过draw方法完成波形绘制，请给出所有实现代码

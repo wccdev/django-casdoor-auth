@@ -50,12 +50,16 @@ def callback(request):
             in_user = User.objects.get(email=user.get('email'))
         except User.MultipleObjectsReturned:
             raise ValueError(f"Multiple emails found: {email}")
+        except User.DoesNotExist:
+            pass
 
     if not in_user and username:
         try:
             in_user = User.objects.get(username=username)
         except User.MultipleObjectsReturned:
             raise ValueError(f"Multiple username found: {username}")
+        except User.DoesNotExist:
+            pass
 
     if not in_user:
         in_user = User.objects.create_user(username, email=email)
