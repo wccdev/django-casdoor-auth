@@ -65,4 +65,5 @@ def callback(request):
         in_user = User.objects.create_user(username, email=email)
 
     login(request, in_user)
-    return redirect(settings.LOGIN_REDIRECT_URL)
+    redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
+    return redirect(redirect_url)
