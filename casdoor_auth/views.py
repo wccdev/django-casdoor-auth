@@ -44,7 +44,8 @@ def callback(request):
     request.session['user'] = user
     email = user.get('email')
     username = user.get('name')
-    display_name = user.get('display_name')
+    display_name = user.get('displayName', username)
+    is_admin = user.get('isAdmin', False)
     in_user = None
     if email:
         try:
@@ -63,7 +64,8 @@ def callback(request):
             pass
 
     if not in_user:
-        in_user = User.objects.create_user(username, email=email, name=display_name)
+        extra_fields = dict(is_superuser=is_admin, is_staff=is_admin)
+        in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
 
     login(request, in_user)
     redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
