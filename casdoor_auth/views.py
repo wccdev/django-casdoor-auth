@@ -14,9 +14,10 @@
 
 from casdoor import CasdoorSDK
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 
 
 User = get_user_model()
@@ -32,11 +33,13 @@ sdk = CasdoorSDK(conf.get('endpoint'),
                  conf.get('endpoint'))
 
 
-def toLogin(request):
+@csrf_exempt
+def to_login(request):
     redirect_url = sdk.get_auth_link(redirect_uri=settings.REDIRECT_URI)
     return redirect(redirect_url)
 
 
+@csrf_exempt
 def callback(request):
     code = request.GET.get('code')
     token = sdk.get_oauth_token(code)
