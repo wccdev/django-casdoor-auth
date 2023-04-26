@@ -18,5 +18,6 @@ from casdoor_auth import views
 
 urlpatterns = [
     path('login/', views.to_login, name='casdoor_sso'),
+    path('logout/', views.to_logout, name='casdoor_logout')
     path('callback/', views.callback, name='callback'),
 ]

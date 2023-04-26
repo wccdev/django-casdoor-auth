@@ -14,7 +14,7 @@
 
 from casdoor import CasdoorSDK
 from django.conf import settings
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -37,6 +37,15 @@ sdk = CasdoorSDK(conf.get('endpoint'),
 def to_login(request):
     redirect_url = sdk.get_auth_link(redirect_uri=settings.REDIRECT_URI)
     return redirect(redirect_url)
+
+
+@csrf_exempt
+def to_logout(request):
+    id_token = request.session.get('casdoor_token')
+    logout(request)
+    redirect_url = sdk.get_auth_link(redirect_uri=settings.REDIRECT_URI)
+    logout_url = f"{sdk.front_endpoint}/api/logout?id_token_hint={id_token}&post_logout_redirect_uri={redirect_url}"
+    return redirect(logout_url)
 
 
 @csrf_exempt
@@ -71,5 +80,7 @@ def callback(request):
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
 
     login(request, in_user)
+    request.session['casdoor_token'] = token
+
     redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
     return redirect(redirect_url)
