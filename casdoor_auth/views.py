@@ -18,7 +18,6 @@ from django.contrib.auth import login
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
 
 
 User = get_user_model()
@@ -72,6 +71,5 @@ def callback(request):
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
 
     login(request, in_user)
-    return HttpResponse("ok")
-    # redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
-    # return redirect(redirect_url)
+    redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
+    return redirect(redirect_url)
