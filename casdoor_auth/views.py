@@ -52,7 +52,10 @@ def to_logout(request):
 def callback(request):
     code = request.GET.get('code')
     token = sdk.get_oauth_token(code)
-    user = sdk.parse_jwt_token(token)
+    if isinstance(token, dict):
+        access_token = token.get("access_token")
+
+    user = sdk.parse_jwt_token(access_token)
     request.session['user'] = user
     email = user.get('email')
     username = user.get('name')
