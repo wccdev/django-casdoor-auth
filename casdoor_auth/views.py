@@ -87,3 +87,43 @@ def callback(request):
 
     redirect_url = settings.LOGIN_REDIRECT_URL + f"?username={in_user.username}"
     return redirect(redirect_url)
+
+
+@csrf_exempt
+def callback_no_redirect(request):
+    code = request.GET.get('code')
+    token = sdk.get_oauth_token(code)
+    if isinstance(token, dict):
+        access_token = token.get("access_token")
+
+    user = sdk.parse_jwt_token(access_token)
+    request.session['user'] = user
+    email = user.get('email')
+    username = user.get('name')
+    display_name = user.get('displayName', username)
+    is_admin = user.get('isAdmin', False)
+    in_user = None
+    if email:
+        try:
+            in_user = User.objects.get(email=user.get('email'))
+        except User.MultipleObjectsReturned:
+            raise ValueError(f"Multiple emails found: {email}")
+        except User.DoesNotExist:
+            pass
+
+    if not in_user and username:
+        try:
+            in_user = User.objects.get(username=username)
+        except User.MultipleObjectsReturned:
+            raise ValueError(f"Multiple username found: {username}")
+        except User.DoesNotExist:
+            pass
+
+    if not in_user:
+        extra_fields = dict(is_superuser=is_admin, is_staff=is_admin)
+        in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
+
+    login(request, in_user)
+    request.session['casdoor_token'] = token
+    return
+
