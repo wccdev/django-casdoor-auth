@@ -17,6 +17,8 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
+from django.http import HttpResponse
+
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -125,5 +127,5 @@ def callback_no_redirect(request):
 
     login(request, in_user)
     request.session['casdoor_token'] = token
-    return
+    return HttpResponse("ok")
 
