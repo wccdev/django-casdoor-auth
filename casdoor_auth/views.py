@@ -57,9 +57,9 @@ def callback(request):
     code = request.GET.get('code')
     token = sdk.get_oauth_token(code)
     if isinstance(token, dict):
-        access_token = token.get("access_token")
+        token = token.get("access_token")
 
-    user = sdk.parse_jwt_token(access_token)
+    user = sdk.parse_jwt_token(token)
     request.session['user'] = user
     email = user.get('email')
     username = user.get('name')
@@ -106,9 +106,9 @@ def callback_no_redirect(request):
     code = request.GET.get('code')
     token = sdk.get_oauth_token(code)
     if isinstance(token, dict):
-        access_token = token.get("access_token")
+        token = token.get("access_token")
 
-    user = sdk.parse_jwt_token(access_token)
+    user = sdk.parse_jwt_token(token)
     request.session['user'] = user
     email = user.get('email')
     username = user.get('name')
