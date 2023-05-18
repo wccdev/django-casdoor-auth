@@ -91,7 +91,7 @@ def callback(request):
             extra_fields['phone'] = user.get('phone')
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
     
-    if 'avatar' in user_fields and avatar_url and in_user.avatar is None:
+    if 'avatar' in user_fields and avatar_url and not bool(in_user.avatar):
         save_avatar_from_url(in_user, avatar_url)
 
     login(request, in_user)
@@ -140,7 +140,7 @@ def callback_no_redirect(request):
             extra_fields['phone'] = user.get('phone')
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
     
-    if 'avatar' in user_fields and avatar_url and in_user.avatar is None:
+    if 'avatar' in user_fields and avatar_url and not bool(in_user.avatar):
         save_avatar_from_url(in_user, avatar_url)
 
     login(request, in_user)
