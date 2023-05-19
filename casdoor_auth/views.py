@@ -66,6 +66,7 @@ def callback(request):
     display_name = user.get('displayName', username)
     is_admin = user.get('isAdmin', False)
     avatar_url = user.get('avatar', '')
+    phone = user.get('phone', '')
     in_user = None
     user_fields = [f.name for f in User._meta.fields]
 
@@ -87,12 +88,14 @@ def callback(request):
 
     if not in_user:
         extra_fields = dict(is_superuser=is_admin, is_staff=is_admin)
-        if 'phone' in user_fields:
-            extra_fields['phone'] = user.get('phone')
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
     
     if 'avatar' in user_fields and avatar_url and not bool(in_user.avatar):
         save_avatar_from_url(in_user, avatar_url)
+    
+    if 'phone' in user_fields and phone and not in_user.phone:
+        in_user.phone = phone
+        in_user.save(update_fields=['phone'])
 
     login(request, in_user)
     request.session['casdoor_token'] = token
@@ -115,6 +118,7 @@ def callback_no_redirect(request):
     display_name = user.get('displayName', username)
     is_admin = user.get('isAdmin', False)
     avatar_url = user.get('avatar', '')
+    phone = user.get('phone', '')
     in_user = None
     user_fields = [f.name for f in User._meta.fields]
 
@@ -136,12 +140,14 @@ def callback_no_redirect(request):
 
     if not in_user:
         extra_fields = dict(is_superuser=is_admin, is_staff=is_admin)
-        if 'phone' in user_fields:
-            extra_fields['phone'] = user.get('phone')
         in_user = User.objects.create_user(username, email=email, name=display_name, **extra_fields)
     
     if 'avatar' in user_fields and avatar_url and not bool(in_user.avatar):
         save_avatar_from_url(in_user, avatar_url)
+    
+    if 'phone' in user_fields and phone and not in_user.phone:
+        in_user.phone = phone
+        in_user.save(update_fields=['phone'])
 
     login(request, in_user)
     request.session['casdoor_token'] = token
