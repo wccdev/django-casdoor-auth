@@ -1,4 +1,6 @@
+import os
 import requests
+import urllib.parse
 from django.core.files.base import ContentFile
 
 
@@ -8,5 +10,7 @@ def save_avatar_from_url(user, url):
         print("downloading avatars failed")
         return
 
-    # Assume the avatar is a .jpg
-    user.avatar.save(f'{user.pk}.jpg', ContentFile(response.content), save=True)
+    parsed_url = urllib.parse.urlparse(url)
+    filename = os.path.basename(parsed_url.path)
+    file_ext = os.path.splitext(filename)[1]
+    user.avatar.save(f"{user.pk}{file_ext}", ContentFile(response.content), save=True)
